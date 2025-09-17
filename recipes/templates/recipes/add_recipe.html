@@ -1,0 +1,14 @@
+{% extends "recipes/base.html" %}
+{% block content %}
+<h1>Pridať nový recept</h1>
+<form method="post">
+    {% csrf_token %}
+    <label>Názov:</label>
+    <input type="text" name="title" required><br>
+    <label>Popis:</label>
+    <textarea name="description" required></textarea><br>
+    <label>Ingrediencie (oddelené čiarkou):</label>
+    <input type="text" name="ingredients" required><br>
+    <button type="submit">Pridať</button>
+</form>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "recipes/base.html" %}
+{% block content %}
+<h1>Recepty</h1>
+<form method="get">
+    <input type="text" name="q" placeholder="Hľadaj podľa ingrediencie">
+    <button type="submit">Hľadaj</button>
+</form>
+<ul>
+    {% for recipe in recipes %}
+        <li>{{ recipe.title }} -
+            Ingrediencie: {% for i in recipe.ingredients.all %}{{ i.name }} {% endfor %}
+        </li>
+    {% empty %}
+        <li>Žiadne recepty neboli nájdené.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
