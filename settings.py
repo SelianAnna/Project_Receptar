@@ -16,7 +16,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Lokálne appky
     "recipes",
-    "accounts",
+    "Accounts.apps.AccountsConfig",  # používame veľké A, aby sedelo s vaším priečinkom
 ]
 
 MIDDLEWARE = [
@@ -34,7 +34,7 @@ ROOT_URLCONF = "Project_receptar.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [BASE_DIR / "templates"],  # budeme používať priečinok templates v tomto (vnútornom) projekte
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

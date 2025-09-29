@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -12,5 +14,9 @@ urlpatterns = [
     # Appky
     path("recipes/", include("recipes.urls")),
     path("accounts/", include("django.contrib.auth.urls")),  # login/logout
-    path("accounts/", include("accounts.urls")),             # signup/activate
+    path("accounts/", include("Accounts.urls")),             # signup/activate (Accounts s veľkým A)
 ]
+
+# Servovanie nahraných obrázkov v DEV
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
