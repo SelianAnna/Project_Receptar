@@ -1,7 +1,8 @@
 from pathlib import Path
 import os
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+# Plochá štruktúra: settings.py je vedľa manage.py
+BASE_DIR = Path(__file__).resolve().parent
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "change-me-in-production")
 DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
@@ -16,7 +17,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Lokálne appky
     "recipes",
-    "Accounts.apps.AccountsConfig",  # používame veľké A, aby sedelo s vaším priečinkom
+    "Accounts.apps.AccountsConfig",
 ]
 
 MIDDLEWARE = [
@@ -29,12 +30,14 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "Project_receptar.urls"
+# Plochá štruktúra: odkaz na 'urls'
+ROOT_URLCONF = "urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],  # budeme používať priečinok templates v tomto (vnútornom) projekte
+        # Šablóny: ./templates
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -47,12 +50,14 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "Project_receptar.wsgi.application"
-ASGI_APPLICATION = "Project_receptar.asgi.application"
+# Plochá štruktúra: odkaz na 'wsgi' a 'asgi'
+WSGI_APPLICATION = "wsgi.application"
+ASGI_APPLICATION = "asgi.application"
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
+        # DB vedľa manage.py
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
@@ -78,16 +83,13 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Auth smerovanie
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "recipes:list"
 LOGOUT_REDIRECT_URL = "home"
 
-# E-mail (dev: do konzoly)
 EMAIL_BACKEND = os.environ.get("DJANGO_EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
 DEFAULT_FROM_EMAIL = os.environ.get("DJANGO_DEFAULT_FROM_EMAIL", "no-reply@receptar.local")
 
-# Bezpečnosť pre produkciu
 if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True

@@ -14,9 +14,9 @@ urlpatterns = [
     # Appky
     path("recipes/", include("recipes.urls")),
     path("accounts/", include("django.contrib.auth.urls")),  # login/logout
-    path("accounts/", include("Accounts.urls")),             # signup/activate (Accounts s veľkým A)
+    path("accounts/", include("Accounts.urls")),             # signup/activate
 ]
 
-# Servovanie nahraných obrázkov v DEV
+# Ak DEBUG: servovať media/ súbory
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
