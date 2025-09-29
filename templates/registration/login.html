@@ -2,11 +2,20 @@
 {% block title %}Prihlásenie — Receptár{% endblock %}
 {% block content %}
 <h1>Prihlásenie</h1>
+
+{% if form and form.errors %}
+  <div class="alert alert-danger">
+    {% for err in form.non_field_errors %}<div>{{ err }}</div>{% endfor %}
+    {% if form.username.errors %}<div>{{ form.username.errors.0 }}</div>{% endif %}
+    {% if form.password.errors %}<div>{{ form.password.errors.0 }}</div>{% endif %}
+  </div>
+{% endif %}
+
 <form method="post" class="mt-3">
   {% csrf_token %}
   <div class="mb-3">
     <label for="id_username" class="form-label">Používateľské meno</label>
-    <input type="text" name="username" autofocus required class="form-control" id="id_username">
+    <input type="text" name="username" autofocus required class="form-control" id="id_username" value="{{ form.username.value|default_if_none:'' }}">
   </div>
   <div class="mb-3">
     <label for="id_password" class="form-label">Heslo</label>
