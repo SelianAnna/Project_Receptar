@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ recipe.title }} — Receptár{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <h1>{{ recipe.title }}</h1>
+    {% if recipe.image %}<img src="{{ recipe.image.url }}" class="img-fluid rounded mb-3" alt="{{ recipe.title }}">{% endif %}
+    <h5>Popis</h5>
+    <p>{{ recipe.description|linebreaks }}</p>
+    <h5>Postup</h5>
+    <p>{{ recipe.instructions|linebreaks }}</p>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">Ingrediencie</div>
+      <ul class="list-group list-group-flush">
+        {% for ri in recipe.recipeingredient_set.all %}
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{{ ri.ingredient.name }}</span>
+            <span class="text-muted">{{ ri.amount }}</span>
+          </li>
+        {% empty %}
+          <li class="list-group-item">Bez ingrediencií</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

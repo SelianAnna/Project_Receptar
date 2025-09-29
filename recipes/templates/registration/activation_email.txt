@@ -1,0 +1,8 @@
+Ahoj {{ user.username }},
+
+ďakujeme za registráciu v Receptári.
+Pre aktiváciu účtu klikni na nasledujúci odkaz:
+
+{{ activate_url }}
+
+Ak si sa neregistroval ty, ignoruj tento e-mail.

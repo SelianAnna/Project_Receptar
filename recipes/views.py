@@ -1,31 +1,54 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView
 from .models import Recipe, Ingredient
+from .forms import RecipeForm
 
-def home(request):
-    return render(request, 'recipes/home.html')
+class RecipeListView(ListView):
+    model = Recipe
+    template_name = "recipes/recipe_list.html"
+    context_object_name = "recipes"
+    paginate_by = 12
 
-def about(request):
-    return render(request, 'recipes/about.html')
+class RecipeDetailView(DetailView):
+    model = Recipe
+    template_name = "recipes/recipe_detail.html"
+    context_object_name = "recipe"
 
-def recipe_list(request):
-    query = request.GET.get('q')
-    if query:
-        recipes = Recipe.objects.filter(ingredients__name__icontains=query).distinct()
-    else:
-        recipes = Recipe.objects.all()
-    return render(request, 'recipes/recipe_list.html', {'recipes': recipes})
+class RecipeCreateView(LoginRequiredMixin, CreateView):
+    model = Recipe
+    form_class = RecipeForm
+    template_name = "recipes/recipe_form.html"
+    success_url = reverse_lazy("recipes:list")
 
-@login_required
-def add_recipe(request):
-    if request.method == 'POST':
-        title = request.POST['title']
-        description = request.POST['description']
-        ingredient_names = request.POST.get('ingredients').split(',')
-        recipe = Recipe.objects.create(title=title, description=description, created_by=request.user)
-        for name in ingredient_names:
-            ingredient, created = Ingredient.objects.get_or_create(name=name.strip())
-            recipe.ingredients.add(ingredient)
-        return redirect('recipe_list')
-    return render(request, 'recipes/add_recipe.html')
+    def form_valid(self, form):
+        form.save(user=self.request.user)
+        return redirect(self.get_success_url())
 
+class IngredientListView(ListView):
+    model = Ingredient
+    template_name = "recipes/ingredient_list.html"
+    context_object_name = "ingredients"
+    paginate_by = 30
+
+class RecipeSearchView(ListView):
+    model = Recipe
+    template_name = "recipes/recipe_search.html"
+    context_object_name = "recipes"
+
+    def get_queryset(self):
+        qs = Recipe.objects.all()
+        q = self.request.GET.get("q", "").strip()
+        ingredients = self.request.GET.get("ingredients", "").strip()
+
+        if q:
+            qs = qs.filter(Q(title__icontains=q) | Q(description__icontains=q) | Q(instructions__icontains=q))
+
+        if ingredients:
+            tokens = [t.strip() for t in ingredients.split(",") if t.strip()]
+            for t in tokens:
+                qs = qs.filter(ingredients__name__iexact=t)
+
+        return qs.distinct()

@@ -1,17 +1,22 @@
-{% extends "recipes/base.html" %}
+{% extends "base.html" %}
+{% block title %}Recepty — Receptár{% endblock %}
 {% block content %}
-<h1>Recepty</h1>
-<form method="get">
-    <input type="text" name="q" placeholder="Hľadaj podľa ingrediencie">
-    <button type="submit">Hľadaj</button>
-</form>
-<ul>
-    {% for recipe in recipes %}
-        <li>{{ recipe.title }} -
-            Ingrediencie: {% for i in recipe.ingredients.all %}{{ i.name }} {% endfor %}
-        </li>
-    {% empty %}
-        <li>Žiadne recepty neboli nájdené.</li>
-    {% endfor %}
-</ul>
+<h1 class="mb-3">Recepty</h1>
+<div class="row g-3">
+  {% for r in recipes %}
+  <div class="col-md-4">
+    <div class="card h-100">
+      {% if r.image %}<img src="{{ r.image.url }}" class="card-img-top" alt="{{ r.title }}">{% endif %}
+      <div class="card-body">
+        <h5 class="card-title">{{ r.title }}</h5>
+        <p class="card-text text-muted small mb-2">Autor: {{ r.created_by.username }} | {{ r.created_at|date:"d.m.Y H:i" }}</p>
+        <p class="card-text">{{ r.description|truncatewords:20 }}</p>
+        <a href="{% url 'recipes:detail' r.pk %}" class="btn btn-outline-primary btn-sm">Detail</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+    <p>Žiadne recepty zatiaľ nie sú.</p>
+  {% endfor %}
+</div>
 {% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Pridať recept — Receptár{% endblock %}
+{% block content %}
+<h1>Pridať recept</h1>
+<form method="post" enctype="multipart/form-data" class="mt-3">
+  {% csrf_token %}
+  <div class="mb-3">{{ form.title.label_tag }} {{ form.title }}</div>
+  <div class="mb-3">{{ form.description.label_tag }} {{ form.description }}</div>
+  <div class="mb-3">{{ form.instructions.label_tag }} {{ form.instructions }}</div>
+  <div class="mb-3">{{ form.image.label_tag }} {{ form.image }}</div>
+  <div class="mb-3">{{ form.ingredient_names.label_tag }} {{ form.ingredient_names }}<div class="form-text">{{ form.ingredient_names.help_text }}</div></div>
+  <button class="btn btn-primary">Uložiť</button>
+</form>
+{% endblock %}

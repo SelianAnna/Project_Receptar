@@ -1,6 +1,17 @@
 from django.contrib import admin
-from .models import Ingredient, Recipe
+from .models import Recipe, Ingredient, RecipeIngredient
 
-admin.site.register(Ingredient)
-admin.site.register(Recipe)
+class RecipeIngredientInline(admin.TabularInline):
+    model = RecipeIngredient
+    extra = 1
 
+@admin.register(Recipe)
+class RecipeAdmin(admin.ModelAdmin):
+    list_display = ("title", "created_by", "created_at")
+    search_fields = ("title", "description", "instructions")
+    list_filter = ("created_at",)
+    inlines = [RecipeIngredientInline]
+
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
+    search_fields = ("name",)
