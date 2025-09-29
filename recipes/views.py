@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Recipe, Ingredient
 from .forms import RecipeForm
 
@@ -52,3 +52,20 @@ class RecipeSearchView(ListView):
                 qs = qs.filter(ingredients__name__iexact=t)
 
         return qs.distinct()
+
+class RecipeUpdateView(LoginRequiredMixin, UpdateView):
+    model = Recipe
+    form_class = RecipeForm
+    template_name = "recipes/recipe_form.html"
+    success_url = reverse_lazy("recipes:list")
+
+    def get_queryset(self):
+        return Recipe.objects.filter(created_by=self.request.user)
+
+class RecipeDeleteView(LoginRequiredMixin, DeleteView):
+    model = Recipe
+    template_name = "recipes/recipe_confirm_delete.html"
+    success_url = reverse_lazy("recipes:list")
+
+    def get_queryset(self):
+        return Recipe.objects.filter(created_by=self.request.user)

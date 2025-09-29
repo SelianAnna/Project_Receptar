@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Zmazať recept — Receptár{% endblock %}
+{% block content %}
+<h1>Zmazať recept: {{ object.title }}</h1>
+<p>Určite chceš zmazať tento recept? Táto akcia je nevratná.</p>
+<form method="post">
+  {% csrf_token %}
+  <button class="btn btn-danger">Zmazať</button>
+  <a href="{% url 'recipes:detail' object.pk %}" class="btn btn-secondary">Späť</a>
+</form>
+{% endblock %}
