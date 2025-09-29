@@ -2,15 +2,45 @@
 {% block title %}Pridať recept — Receptár{% endblock %}
 {% block content %}
 <h1>Pridať recept</h1>
-<form method="post" enctype="multipart/form-data" class="mt-3">
+<form method="post" enctype="multipart/form-data" class="mt-3" id="recipe-form">
   {% csrf_token %}
   <div class="mb-3">{{ form.title.label_tag }} {{ form.title }}</div>
   <div class="mb-3">{{ form.description.label_tag }} {{ form.description }}</div>
   <div class="mb-3">{{ form.instructions.label_tag }} {{ form.instructions }}</div>
   <div class="mb-3">{{ form.image.label_tag }} {{ form.image }}</div>
-  <div class="mb-3">{{ form.ingredient_names.label_tag }} {{ form.ingredient_names }}
-    <div class="form-text">{{ form.ingredient_names.help_text }}</div>
+
+  <h5>Ingrediencie</h5>
+  <div id="ingredient-rows">
+    <div class="row g-2 mb-2 ingredient-row">
+      <div class="col-md-6">
+        <input type="text" name="ingredient_name" class="form-control" placeholder="Názov ingrediencie">
+      </div>
+      <div class="col-md-4">
+        <input type="text" name="ingredient_amount" class="form-control" placeholder="Množstvo (napr. 200g)">
+      </div>
+      <div class="col-md-2">
+        <button type="button" class="btn btn-danger remove-row" style="display:none;">&minus;</button>
+      </div>
+    </div>
   </div>
+  <button type="button" id="add-ingredient-row" class="btn btn-secondary mb-3">+ Pridať ďalšiu ingredienciu</button>
+
   <button class="btn btn-primary">Uložiť</button>
 </form>
+
+<script>
+document.getElementById('add-ingredient-row').addEventListener('click', function() {
+    var container = document.getElementById('ingredient-rows');
+    var newRow = container.firstElementChild.cloneNode(true);
+    newRow.querySelector('input[name="ingredient_name"]').value = '';
+    newRow.querySelector('input[name="ingredient_amount"]').value = '';
+    newRow.querySelector('.remove-row').style.display = 'inline-block';
+    container.appendChild(newRow);
+});
+document.getElementById('ingredient-rows').addEventListener('click', function(e) {
+    if (e.target.classList.contains('remove-row')) {
+        e.target.parentElement.parentElement.remove();
+    }
+});
+</script>
 {% endblock %}
