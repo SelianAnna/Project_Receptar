@@ -24,8 +24,8 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("recipes:list")
 
     def form_valid(self, form):
-        form.save(user=self.request.user)
-        return redirect(self.get_success_url())
+        self.object = form.save(user=self.request.user)
+        return super().form_valid(form)
 
 class IngredientListView(ListView):
     model = Ingredient
