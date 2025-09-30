@@ -1,9 +1,33 @@
+from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q, Count
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.db.models import Q
+
 from .models import Recipe, Ingredient, RecipeIngredient
 from .forms import RecipeForm
+
+
+def cleanup_orphan_ingredients():
+    """
+    Zmaže ingrediencie, ktoré už nemajú žiadnu väzbu v RecipeIngredient.
+    """
+    Ingredient.objects.filter(recipeingredient__isnull=True).delete()
+
+
+@require_POST
+@user_passes_test(lambda u: u.is_superuser)
+def ingredients_cleanup_view(request):
+    """
+    Vyčistí nepoužívané ingrediencie (len superuser, POST).
+    """
+    deleted, _ = Ingredient.objects.filter(recipeingredient__isnull=True).delete()
+    messages.success(request, f"Zmazaných nepoužívaných ingrediencií: {deleted}")
+    return redirect("recipes:ingredients")
+
 
 class RecipeListView(ListView):
     model = Recipe
@@ -11,10 +35,12 @@ class RecipeListView(ListView):
     context_object_name = "recipes"
     paginate_by = 12
 
+
 class RecipeDetailView(DetailView):
     model = Recipe
     template_name = "recipes/recipe_detail.html"
     context_object_name = "recipe"
+
 
 class RecipeCreateView(LoginRequiredMixin, CreateView):
     model = Recipe
@@ -39,7 +65,9 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
             ing, _ = Ingredient.objects.get_or_create(name=name)
             RecipeIngredient.objects.create(recipe=self.object, ingredient=ing, amount=amount)
 
-        return super().form_valid(form)
+        # po úspechu presmeruj
+        return redirect(self.get_success_url())
+
 
 class RecipeUpdateView(LoginRequiredMixin, UpdateView):
     model = Recipe
@@ -54,10 +82,10 @@ class RecipeUpdateView(LoginRequiredMixin, UpdateView):
         return Recipe.objects.filter(created_by=self.request.user)
 
     def form_valid(self, form):
+        # Uloží základné polia receptu
         self.object = form.save()
 
-        # Pre zapisovanie ingrediencií pri úprave (prepíšeme podľa odoslaného formulára)
-        # Najprv zmažeme existujúce väzby a vytvoríme nanovo
+        # Prepíš ingrediencie podľa formulára:
         RecipeIngredient.objects.filter(recipe=self.object).delete()
 
         names = self.request.POST.getlist("ingredient_name")
@@ -70,7 +98,10 @@ class RecipeUpdateView(LoginRequiredMixin, UpdateView):
             ing, _ = Ingredient.objects.get_or_create(name=name)
             RecipeIngredient.objects.create(recipe=self.object, ingredient=ing, amount=amount)
 
-        return super().form_valid(form)
+        # po úprave upraceme osirelé ingrediencie
+        cleanup_orphan_ingredients()
+        return redirect(self.get_success_url())
+
 
 class RecipeDeleteView(LoginRequiredMixin, DeleteView):
     model = Recipe
@@ -83,11 +114,47 @@ class RecipeDeleteView(LoginRequiredMixin, DeleteView):
             return Recipe.objects.all()
         return Recipe.objects.filter(created_by=self.request.user)
 
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
+        cleanup_orphan_ingredients()
+        return response
+
+
 class IngredientListView(ListView):
     model = Ingredient
     template_name = "recipes/ingredient_list.html"
     context_object_name = "ingredients"
     paginate_by = 30
+
+    def get_queryset(self):
+        # Zobraz aj počet použitia
+        return Ingredient.objects.annotate(
+            recipe_count=Count("recipeingredient")
+        ).order_by("name")
+
+
+class IngredientRecipeListView(ListView):
+    """
+    Zoznam receptov, ktoré obsahujú danú ingredienciu.
+    """
+    model = Recipe
+    template_name = "recipes/ingredient_recipes.html"
+    context_object_name = "recipes"
+    paginate_by = 12
+
+    def get_queryset(self):
+        self.ingredient = get_object_or_404(Ingredient, pk=self.kwargs["pk"])
+        return (
+            Recipe.objects.filter(recipeingredient__ingredient=self.ingredient)
+            .distinct()
+            .select_related("created_by")
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["ingredient"] = self.ingredient
+        return ctx
+
 
 class RecipeSearchView(ListView):
     model = Recipe

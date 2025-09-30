@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Recepty s ingredienciou {{ ingredient.name }} — Receptár{% endblock %}
+{% block content %}
+<h1>Recepty s ingredienciou: <em>{{ ingredient.name }}</em></h1>
+
+{% if recipes %}
+  <ul class="list-group">
+    {% for recipe in recipes %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <a href="{% url 'recipes:detail' recipe.pk %}">{{ recipe.title }}</a>
+        {% if recipe.created_by %}
+          <span class="text-muted small">autor: {{ recipe.created_by.username }}</span>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="alert alert-info mt-3">
+    Žiadne recepty s touto ingredienciou.
+  </div>
+{% endif %}
+{% endblock %}

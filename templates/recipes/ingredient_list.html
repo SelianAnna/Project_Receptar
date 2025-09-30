@@ -1,12 +1,26 @@
 {% extends "base.html" %}
-{% block title %}Ingrediencie — Receptár{% endblock %}
+{% block title %}Zoznam ingrediencií — Receptár{% endblock %}
 {% block content %}
 <h1>Zoznam ingrediencií</h1>
+
+{% if user.is_superuser %}
+  <form method="post" action="{% url 'recipes:ingredients_cleanup' %}" class="mb-3">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-outline-danger"
+            onclick="return confirm('Naozaj zmazať všetky nepoužívané ingrediencie?')">
+      Vyčistiť nepoužívané ingrediencie
+    </button>
+  </form>
+{% endif %}
+
 <ul class="list-group">
-  {% for i in ingredients %}
+  {% for ing in ingredients %}
     <li class="list-group-item d-flex justify-content-between align-items-center">
-      {{ i.name }}
-      <span class="badge text-bg-secondary">{{ i.recipes.count }} receptov</span>
+      <span>{{ ing.name }}</span>
+      <a class="badge {% if ing.recipe_count %}bg-primary{% else %}bg-secondary{% endif %}"
+         href="{% url 'recipes:ingredient_recipes' ing.id %}">
+        {{ ing.recipe_count }} receptov
+      </a>
     </li>
   {% empty %}
     <li class="list-group-item">Žiadne ingrediencie</li>
