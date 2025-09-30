@@ -85,7 +85,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "recipes:list"
-LOGOUT_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = 'home'  # alebo LOGOUT_REDIRECT_URL = '/' ak hlavná stránka je /
 
 EMAIL_BACKEND = os.environ.get("DJANGO_EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
 DEFAULT_FROM_EMAIL = os.environ.get("DJANGO_DEFAULT_FROM_EMAIL", "no-reply@receptar.local")
