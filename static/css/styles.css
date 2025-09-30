@@ -1,3 +1,9 @@
-body { background-color: #fafafa; }
-.navbar-brand { letter-spacing: 0.5px; }
-.card-img-top { object-fit: cover; height: 180px; }
+/* Nezalamuj položky na pravej strane navbaru a vyrovnaj baseline */
+.navbar-nav.auth {
+  flex-wrap: nowrap;
+  gap: .5rem;
+}
+.navbar .navbar-text,
+.navbar .nav-link {
+  white-space: nowrap;
+}
